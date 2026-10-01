@@ -16,7 +16,12 @@ jobs:
 
       - name: Download KHM Portsmouth tide feed
         run: |
-          curl -fsSL -A "Mozilla/5.0 (hardway-tides)" \
+          curl -fsSL --retry 2 \
+            -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0 Safari/537.36" \
+            -H "Accept: application/json, text/plain, */*" \
+            -H "Accept-Language: en-GB,en;q=0.9" \
+            -H "Referer: https://www.royalnavy.mod.uk/" \
+            -H "Origin: https://www.royalnavy.mod.uk" \
             "https://sccd.royalnavy.mod.uk/api/khm/tides/portsmouth/upcoming" -o tides.new.json
           python3 -c "import json; d=json.load(open('tides.new.json')); assert isinstance(d,list) and d and 'hWtime1' in d[0], 'Unexpected feed format'"
           mv tides.new.json tides.json
