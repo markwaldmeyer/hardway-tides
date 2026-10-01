@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Hardway tides</title>
+<meta name="theme-color" content="#0A1B2E">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Tides">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" type="image/png" href="icon-180.png">
+<link rel="manifest" href="manifest.json">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Marcellus&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#0A1B2E; --deep:#06111F; --hull:#12283F; --line:#22405E;
+  --white:#F4F1EA; --mist:#9FB3C6; --brass:#C9A45C; --brass-soft:#E3C88D;
+  --go:#3FB8C6; --tight:#E3954A; --no:#6B5B3E; --nodata:#16304A;
+  --sun:#E9CF8E; --dark:#03070D; --stop:#D46A5A;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+*,*::before,*::after{box-sizing:inherit}
+html,body{margin:0;min-height:100%}
+body{background:var(--navy);color:var(--white);font:16px/1.5 Figtree,"Segoe UI",Arial,sans-serif;
+  background-image:radial-gradient(1200px 500px at 85% -10%, #163556 0%, transparent 60%);}
+.wrap{max-width:1120px;margin:0 auto;padding:28px 18px 48px}
+header{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:16px;border-bottom:1px solid var(--brass);padding-bottom:16px;margin-bottom:22px}
+h1{font-family:Marcellus,Georgia,serif;font-weight:400;font-size:2.6rem;line-height:1;margin:0;letter-spacing:.04em}
+.sub{color:var(--mist);margin:6px 0 0;font-size:.95rem}
+.next{font-family:Marcellus,Georgia,serif;text-align:right}
+.next small{display:block;font-family:Figtree,sans-serif;color:var(--brass);font-size:.85rem;letter-spacing:.03em}
+.next strong{font-weight:400;font-size:1.5rem}
+.next span{display:block;color:var(--mist);font-family:Figtree,sans-serif;font-size:.9rem}
+.panel{background:var(--hull);border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin-bottom:14px}
+.controls{display:flex;flex-wrap:wrap;gap:12px 18px;align-items:flex-end}
+label{display:flex;flex-direction:column;font-size:.8rem;color:var(--mist);gap:4px}
+label.inline{flex-direction:row;align-items:center;gap:8px;color:var(--white);font-size:.95rem}
+input[type=number],textarea{font:inherit;color:var(--white);background:var(--deep);border:1px solid var(--line);border-radius:6px;padding:6px 8px}
+input[type=number]{width:78px}
+input[type=checkbox]{accent-color:var(--brass);width:16px;height:16px}
+button{font:inherit;font-weight:600;background:var(--brass);color:var(--deep);border:0;border-radius:6px;padding:8px 16px;cursor:pointer}
+button.ghost{background:transparent;color:var(--brass-soft);border:1px solid var(--line)}
+:focus-visible{outline:2px solid var(--brass-soft);outline-offset:2px}
+a{color:var(--brass-soft)}
+.status{margin:0;font-size:.9rem;color:var(--mist)}
+.status.err{color:var(--stop)}
+.calc{font-size:.9rem;margin:10px 0 0;color:var(--mist)}
+.calc b{color:var(--white);font-weight:600}
+details.panel summary{cursor:pointer;color:var(--brass-soft);font-weight:600}
+.legend{display:flex;flex-wrap:wrap;gap:8px 18px;font-size:.85rem;color:var(--mist);margin:18px 0 6px}
+.legend span{display:inline-flex;align-items:center;gap:7px}
+.sw{width:18px;height:10px;border-radius:2px;display:inline-block}
+.chart{overflow-x:auto}
+.inner{min-width:680px}
+.axis,.row{display:grid;grid-template-columns:170px 1fr;gap:14px}
+.ticks{position:relative;height:22px;font-size:.75rem;color:var(--mist)}
+.ticks span{position:absolute;transform:translateX(-50%)}
+.row{padding:14px 0;border-top:1px solid var(--line);align-items:start}
+.day{font-family:Marcellus,Georgia,serif;font-size:1.2rem;line-height:1.2}
+.day small{display:block;font-family:Figtree,sans-serif;color:var(--mist);font-size:.82rem;margin:2px 0 8px}
+.badge{display:inline-block;font-family:Figtree,sans-serif;font-size:.8rem;font-weight:700;padding:3px 9px;border-radius:999px}
+.badge.day{background:var(--go);color:var(--deep)}
+.badge.dusk{background:var(--brass);color:var(--deep)}
+.badge.night{background:transparent;color:var(--mist);border:1px solid var(--mist)}
+.badge.none{background:transparent;color:var(--stop);border:1px solid var(--stop)}
+.track{display:flex;flex-direction:column;gap:3px}
+.sunlane{position:relative;height:10px;border-radius:3px;overflow:hidden;background:var(--dark)}
+.sunlane i{position:absolute;top:0;bottom:0;background:var(--sun)}
+.bar{position:relative;height:78px;border-radius:6px;overflow:hidden;background:var(--nodata)}
+.seg{position:absolute;top:0;bottom:0}
+.shade{position:absolute;top:0;bottom:0;background:repeating-linear-gradient(135deg,rgba(3,7,13,.7) 0 5px,rgba(3,7,13,.25) 5px 10px)}
+.bar svg{position:absolute;inset:0;width:100%;height:100%}
+.hwlab{position:absolute;top:4px;transform:translateX(-50%);font-size:.74rem;font-weight:600;background:var(--deep);color:var(--brass-soft);padding:1px 6px;border-radius:4px;white-space:nowrap;border:1px solid var(--line)}
+.now{position:absolute;top:0;bottom:0;width:2px;background:var(--stop)}
+.summary{grid-column:2;font-size:.9rem;color:var(--mist);margin-top:6px}
+.summary b{color:var(--white);font-weight:600}
+.empty{color:var(--mist);padding:20px 0}
+textarea{width:100%;height:90px;margin:8px 0}
+footer{font-size:.78rem;color:var(--mist);margin-top:24px;border-top:1px solid var(--line);padding-top:12px}
+@media (max-width:700px){
+  .wrap{padding:18px 12px 40px}
+  h1{font-size:2rem}
+  header{align-items:flex-start}
+  .next{text-align:left}
+  .inner{min-width:0}
+  .axis,.row{grid-template-columns:1fr;gap:8px}
+  .axis>div:first-child{display:none}
+  .day{display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px}
+  .day small{margin:0}
+  .badge{margin-left:auto}
+  .summary{grid-column:1;margin-top:2px}
+  .bar{height:70px}
+  .hwlab{font-size:.68rem;padding:1px 4px}
+  button{padding:11px 18px}
+  input[type=number]{width:70px;padding:9px 8px}
+  .controls .status{flex-basis:100%}
+}
+@media (prefers-reduced-motion:no-preference){.bar,.sunlane{transition:opacity .2s}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Hardway tides</h1>
+      <p class="sub">Dinghy access from Hardway Sailing Club. Portsmouth tide tables, next month.</p>
+    </div>
+    <div class="next" id="next"></div>
+  </header>
+
+  <div class="panel">
+    <div class="controls">
+      <button id="fetch">Refresh tide times</button>
+      <label class="inline"><input type="checkbox" id="weekends"> Weekends only</label>
+      <p class="status" id="status"></p>
+    </div>
+  </div>
+
+  <details class="panel">
+    <summary>Settings</summary>
+    <div class="controls" style="margin-top:12px">
+      <label>Slip end dries (m)<input type="number" id="slip" step="0.1"></label>
+      <label>Water needed (m)<input type="number" id="need" step="0.1"></label>
+      <label>Safety margin (m)<input type="number" id="margin" step="0.1"></label>
+      <label>Time on board (h)<input type="number" id="trip" step="0.5" min="0.5"></label>
+      <label>Show from (h)<input type="number" id="from" min="0" max="23"></label>
+      <label>Show to (h)<input type="number" id="to" min="1" max="24"></label>
+      <button class="ghost" id="reset">Reset defaults</button>
+    </div>
+    <p class="calc" id="calc"></p>
+  </details>
+
+  <div class="legend">
+    <span><i class="sw" style="background:var(--go)"></i>Enough water</span>
+    <span><i class="sw" style="background:var(--tight)"></i>Tight, margin used up</span>
+    <span><i class="sw" style="background:var(--no)"></i>Too shallow</span>
+    <span><i class="sw" style="background:var(--sun)"></i>Daylight</span>
+    <span><i class="sw" style="background:repeating-linear-gradient(135deg,#03070D 0 3px,#3FB8C6 3px 6px)"></i>Dark (hatched)</span>
+  </div>
+
+  <div class="chart"><div class="inner" id="chart"></div></div>
+
+  <details class="panel" style="margin-top:18px" id="manual">
+    <summary>Load data manually</summary>
+    <p>If refresh is blocked, <a href="https://sccd.royalnavy.mod.uk/api/khm/tides/portsmouth/upcoming" target="_blank" rel="noopener">open the tide feed</a>, select all (Ctrl+A), copy, and paste it here.</p>
+    <textarea id="paste" placeholder="Paste the tide feed here"></textarea>
+    <button id="load">Load pasted data</button>
+  </details>
+
+  <footer>Tide data from KHM Portsmouth, produced by permission of the UK Hydrographic Office. © Crown copyright. Heights between high and low water are estimated, so treat times as approximate. Always check conditions on the day.</footer>
+</div>
+
+<script>
+const FEED = 'https://sccd.royalnavy.mod.uk/api/khm/tides/portsmouth/upcoming';
+const TZ = 'Europe/London';
+const DEFAULTS = { slip:1.7, need:0.6, margin:0.3, trip:2, from:5, to:22, weekends:true };
+const Y_MAX = 5.4;
+const KEYS = ['slip','need','margin','trip','from','to'];
+let cfg = { ...DEFAULTS, ...load('hw_cfg', {}) };
+let feed = load('hw_feed', null);
+
+function load(k, d){ try{ const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; }catch(e){ return d; } }
+function save(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
+const $ = id => document.getElementById(id);
+
+// time helpers (Europe/London)
+const partsFmt = new Intl.DateTimeFormat('en-GB',{timeZone:TZ,hourCycle:'h23',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',weekday:'short'});
+function parts(ms){ const o={}; partsFmt.formatToParts(new Date(ms)).forEach(p=>o[p.type]=p.value); return o; }
+function tzOffset(ms){ const p=parts(ms); return Date.UTC(+p.year,+p.month-1,+p.day,+p.hour,+p.minute,+p.second) - Math.floor(ms/1000)*1000; }
+function local(y,m,d,hh=0,mm=0){ const g=Date.UTC(y,m-1,d,hh,mm); return g - tzOffset(g); }
+const hm = ms => new Intl.DateTimeFormat('en-GB',{timeZone:TZ,hour:'2-digit',minute:'2-digit'}).format(new Date(ms));
+const dayLabel = ms => new Intl.DateTimeFormat('en-GB',{timeZone:TZ,weekday:'long'}).format(new Date(ms));
+const shortDay = ms => new Intl.DateTimeFormat('en-GB',{timeZone:TZ,weekday:'short',day:'numeric',month:'short'}).format(new Date(ms));
+const dateLabel = ms => new Intl.DateTimeFormat('en-GB',{timeZone:TZ,day:'numeric',month:'short'}).format(new Date(ms));
+
+// feed parsing
+const ymd = s => s.slice(0,10).split('-').map(Number);
+function at(dateStr, time){ if(!time) return null; const [y,m,d]=ymd(dateStr); const [hh,mm]=time.split(':').map(Number); return local(y,m,d,hh,mm); }
+function eventsFrom(days){
+  const ev=[];
+  days.forEach(d=>{
+    [['hWtime1','hWheight1',true],['hWtime2','hWheight2',true],['lWtime1','lWheight1',false],['lWtime2','lWheight2',false]]
+      .forEach(([tk,hk,hw])=>{ const t=at(d.date,d[tk]); if(t!=null && d[hk]!=null) ev.push({t,h:+d[hk],hw}); });
+  });
+  return ev.sort((a,b)=>a.t-b.t);
+}
+const valid = d => Array.isArray(d) && d.length && d[0].date && ('hWtime1' in d[0]);
+
+// tide maths
+function heightAt(t, ev){
+  for(let i=0;i<ev.length-1;i++){
+    const a=ev[i], b=ev[i+1];
+    if(t>=a.t && t<=b.t){ const f=(t-a.t)/(b.t-a.t); return a.h+(b.h-a.h)*(1-Math.cos(Math.PI*f))/2; }
+  }
+  return null;
+}
+function status(h){
+  if(h==null) return 'nodata';
+  const min=cfg.slip+cfg.need;
+  return h>=min+cfg.margin ? 'go' : h>=min ? 'tight' : 'no';
+}
+function goWindows(a, b, ev){
+  const w=[]; let s=null;
+  for(let t=a; t<=b; t+=5*6e4){
+    const ok = status(heightAt(t,ev))==='go';
+    if(ok && s==null) s=t;
+    if(!ok && s!=null){ w.push([s,t]); s=null; }
+  }
+  if(s!=null) w.push([s,b]);
+  return w;
+}
+const springLabel = p => p==null ? '' : p>=80 ? 'Springs' : p<=20 ? 'Neaps' : 'Mid-range';
+
+// the verdict: water first, light second
+function verdict(wins, rise, set){
+  const trip=cfg.trip*36e5;
+  let best=null;
+  for(const [s,e] of wins){
+    const light = Math.max(0, Math.min(e,set)-Math.max(s,rise));
+    if(light>=trip && (!best || best.kind!=='day' || light>best.light)) best={kind:'day',s,e,light};
+  }
+  if(best) return best;
+  for(const [s,e] of wins){
+    const leave=Math.max(s,rise);
+    if(leave<set && e-leave>=trip) return {kind:'dusk',s:leave,e};
+  }
+  for(const [s,e] of wins) if(e-s>=trip) return {kind:'night',s,e};
+  return {kind:'none'};
+}
+const BADGE = { day:'Daylight trip', dusk:'Back after dark', night:'Water at night only', none:'No water' };
+function verdictText(v, set){
+  if(v.kind==='day') return `Leave from <b>${hm(v.s)}</b>, back by <b>${hm(v.e)}</b> for water.${v.e>set?` Light goes at ${hm(set)}.`:''}`;
+  if(v.kind==='dusk') return `Leave from <b>${hm(v.s)}</b>, back by <b>${hm(v.e)}</b> for water. Dark from ${hm(set)}, so you'd return in the dark.`;
+  if(v.kind==='night') return `Water from <b>${hm(v.s)}</b> to <b>${hm(v.e)}</b>, but not in daylight.`;
+  return `Not enough water for a ${cfg.trip} hour trip.`;
+}
+
+// render
+function render(){
+  const min=cfg.slip+cfg.need, go=min+cfg.margin;
+  $('calc').innerHTML = `Enough water when Portsmouth height is above <b>${go.toFixed(1)} m</b>. Tight between <b>${min.toFixed(1)}</b> and <b>${go.toFixed(1)} m</b>. A trip needs at least <b>${cfg.trip} h</b> of water.`;
+  const chart=$('chart');
+  if(!feed){ chart.innerHTML='<p class="empty">Select Refresh tide times to load the next month.</p>'; $('next').innerHTML=''; return; }
+  const ev=eventsFrom(feed);
+  const from=Math.max(0,Math.min(23,cfg.from)), to=Math.max(from+1,Math.min(24,cfg.to));
+  const span=(to-from)*36e5, step=5*6e4;
+  const pct = ms => Math.max(0,Math.min(100,ms/span*100));
+  const edge = x => x<8 ? 'transform:translateX(0)' : x>92 ? 'transform:translateX(-100%)' : '';
+
+  let html='<div class="axis"><div></div><div class="ticks">';
+  const tickStep = matchMedia('(max-width:700px)').matches ? 3 : (to-from>12?2:1);
+  for(let h=from; h<=to; h+=tickStep) html+=`<span style="left:${pct((h-from)*36e5)}%;${edge(pct((h-from)*36e5))}">${String(h).padStart(2,'0')}:00</span>`;
+  html+='</div></div>';
+
+  const p0=parts(Date.now()), today=local(+p0.year,+p0.month,+p0.day);
+  let rows=0, next=null;
+  feed.forEach(day=>{
+    const [y,m,d]=ymd(day.date), mid=local(y,m,d);
+    if(mid<today) return;
+    const wd=parts(mid+12*36e5).weekday, weekend = wd==='Sat'||wd==='Sun';
+    const rise=at(day.date,day.sunrise)??mid+7*36e5, set=at(day.date,day.sunset)??mid+18*36e5;
+    const v=verdict(goWindows(mid, mid+30*36e5, ev), rise, set);
+    if(!next && weekend && v.kind==='day' && v.e>Date.now()) next={mid,v};
+    if(cfg.weekends && !weekend) return;
+    rows++;
+    const start=local(y,m,d,from), end=start+span;
+
+    let segs='', pts=[], cur=null, segStart=start;
+    for(let t=start; t<=end; t+=step){
+      const h=heightAt(t,ev), s=status(h);
+      if(h!=null) pts.push(`${pct(t-start).toFixed(2)},${(100-h/Y_MAX*100).toFixed(2)}`);
+      if(s!==cur){
+        if(cur) segs+=`<div class="seg" style="left:${pct(segStart-start)}%;width:${pct(t-segStart)}%;background:var(--${cur})"></div>`;
+        cur=s; segStart=t;
+      }
+    }
+    segs+=`<div class="seg" style="left:${pct(segStart-start)}%;width:${pct(end-segStart)}%;background:var(--${cur})"></div>`;
+
+    const sun=`<div class="sunlane" title="Sunrise ${hm(rise)}, sunset ${hm(set)}"><i style="left:${pct(rise-start)}%;width:${pct(set-start)-pct(rise-start)}%"></i></div>`;
+    let shade='';
+    if(rise>start) shade+=`<div class="shade" style="left:0;width:${pct(rise-start)}%"></div>`;
+    if(set<end) shade+=`<div class="shade" style="left:${pct(set-start)}%;right:0"></div>`;
+
+    const hws=ev.filter(e=>e.hw && e.t>=mid && e.t<mid+864e5);
+    const labs=hws.filter(e=>e.t>=start && e.t<=end).map(e=>`<span class="hwlab" style="left:${pct(e.t-start)}%;${edge(pct(e.t-start))}">HW ${hm(e.t)}, ${e.h.toFixed(1)} m</span>`).join('');
+    const now=Date.now();
+    const nowM = (now>=start && now<=end) ? `<div class="now" style="left:${pct(now-start)}%"></div>` : '';
+
+    const yGo=(100-go/Y_MAX*100).toFixed(2);
+    const svg=`<svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+      <line x1="0" x2="100" y1="${yGo}" y2="${yGo}" stroke="#F4F1EA" stroke-width="1" stroke-dasharray="4 4" vector-effect="non-scaling-stroke" opacity=".45"/>
+      <polyline points="${pts.join(' ')}" fill="none" stroke="#F4F1EA" stroke-width="2" vector-effect="non-scaling-stroke"/></svg>`;
+
+    const hwTxt = hws.map(e=>`HW ${hm(e.t)} (${e.h.toFixed(1)} m)`).join(', ');
+    const label = springLabel(day.springPercentage);
+    html+=`<div class="row">
+      <div class="day">${dayLabel(mid+12*36e5)}<small>${dateLabel(mid+12*36e5)}${label?', '+label:''}</small><span class="badge ${v.kind}">${BADGE[v.kind]}</span></div>
+      <div class="track">${sun}<div class="bar">${segs}${shade}${svg}${labs}${nowM}</div></div>
+      <div class="summary">${verdictText(v,set)} ${hwTxt}. Sunrise ${hm(rise)}, sunset ${hm(set)}.</div>
+    </div>`;
+  });
+  chart.innerHTML = rows ? html : '<p class="empty">No days to show. Untick Weekends only or refresh.</p>';
+  $('next').innerHTML = next
+    ? `<small>Next weekend daylight trip</small><strong>${shortDay(next.mid+12*36e5)}</strong><span>${hm(next.v.s)} to ${hm(next.v.e)}</span>`
+    : `<small>Next weekend daylight trip</small><strong>None in range</strong>`;
+}
+
+// data
+function setStatus(msg,err){ const s=$('status'); s.textContent=msg; s.className='status'+(err?' err':''); }
+function showLoaded(){
+  const f=load('hw_fetched',null), [y,m,d]=ymd(feed[feed.length-1].date);
+  setStatus(`Tide times to ${dateLabel(local(y,m,d,12))}.${f?` Refreshed ${dateLabel(f)} at ${hm(f)}.`:''}`);
+}
+function use(data){
+  if(!valid(data)) throw new Error('That does not look like the KHM tide feed.');
+  feed=data; save('hw_feed',feed); save('hw_fetched',Date.now()); showLoaded(); render();
+}
+async function refresh(){
+  setStatus('Getting tide times…');
+  // 1. copy saved next to the page by the nightly GitHub job
+  try{
+    const r=await fetch('tides.json?'+Date.now(),{cache:'no-store'});
+    if(r.ok){ use(await r.json()); return; }
+  }catch(e){}
+  // 2. straight from the Navy feed
+  try{
+    const r=await fetch(FEED,{cache:'no-store'});
+    if(!r.ok) throw new Error(`The tide feed returned error ${r.status}. It may have moved.`);
+    use(await r.json());
+  }catch(e){
+    if(feed){ const f=load('hw_fetched',null); setStatus(`Could not refresh, showing saved data${f?` from ${dateLabel(f)}`:''}.`); }
+    else if(e instanceof TypeError){ setStatus('Could not get tide times. Use Load data manually below.',true); $('manual').open=true; }
+    else setStatus(e.message,true);
+  }
+}
+
+// wiring
+function syncInputs(){ KEYS.forEach(k=>$(k).value=cfg[k]); $('weekends').checked=cfg.weekends; }
+KEYS.forEach(k=>$(k).addEventListener('input',()=>{ const v=parseFloat($(k).value); if(!isNaN(v)){ cfg[k]=v; save('hw_cfg',cfg); render(); }}));
+$('weekends').addEventListener('change',()=>{ cfg.weekends=$('weekends').checked; save('hw_cfg',cfg); render(); });
+$('reset').addEventListener('click',()=>{ cfg={...DEFAULTS}; save('hw_cfg',cfg); syncInputs(); render(); });
+$('fetch').addEventListener('click',refresh);
+$('load').addEventListener('click',()=>{
+  try{ use(JSON.parse($('paste').value)); $('paste').value=''; $('manual').open=false; }
+  catch(e){ setStatus(e.message.startsWith('That') ? e.message : 'Could not read that. Copy the whole feed page and paste again.',true); }
+});
+
+addEventListener('resize',()=>{ clearTimeout(window._rt); window._rt=setTimeout(render,150); });
+syncInputs(); render();
+if(feed) showLoaded();
+refresh();
+</script>
+</body>
+</html>
