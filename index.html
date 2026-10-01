@@ -42,7 +42,10 @@ input[type=number],textarea{font:inherit;color:var(--white);background:var(--dee
 input[type=number]{width:78px}
 input[type=checkbox]{accent-color:var(--brass);width:16px;height:16px}
 button{font:inherit;font-weight:600;background:var(--brass);color:var(--deep);border:0;border-radius:6px;padding:8px 16px;cursor:pointer}
-button.ghost{background:transparent;color:var(--brass-soft);border:1px solid var(--line)}
+.btn{display:inline-block;font-weight:600;text-decoration:none;border-radius:6px;padding:8px 16px}
+.hint{margin:10px 0 0;font-size:.85rem;color:var(--mist)}
+.status.warn{color:var(--tight)}
+button.ghost,.btn.ghost{background:transparent;color:var(--brass-soft);border:1px solid var(--line)}
 :focus-visible{outline:2px solid var(--brass-soft);outline-offset:2px}
 a{color:var(--brass-soft)}
 .status{margin:0;font-size:.9rem;color:var(--mist)}
@@ -55,17 +58,23 @@ details.panel summary{cursor:pointer;color:var(--brass-soft);font-weight:600}
 .sw{width:18px;height:10px;border-radius:2px;display:inline-block}
 .chart{overflow-x:auto}
 .inner{min-width:680px}
-.axis,.row{display:grid;grid-template-columns:170px 1fr;gap:14px}
-.ticks{position:relative;height:22px;font-size:.75rem;color:var(--mist)}
-.ticks span{position:absolute;transform:translateX(-50%)}
+.chart{-webkit-overflow-scrolling:touch}
+.row{display:grid;grid-template-columns:170px 1fr;gap:14px}
+.ticks{position:relative;height:18px;font-size:.72rem;color:var(--white);font-variant-numeric:tabular-nums}
+.ticks span{position:absolute;transform:translateX(-50%);white-space:nowrap}
+.ticks span.half{color:var(--mist);font-size:.66rem;top:2px}
+.grid{position:absolute;inset:0;pointer-events:none;
+  background-image:linear-gradient(to right,rgba(244,241,234,.38) 1px,transparent 1px),linear-gradient(to right,rgba(244,241,234,.16) 1px,transparent 1px);
+  background-size:var(--hour) 100%,var(--half) 100%}
+.day{position:sticky;left:0;z-index:3;background:var(--navy);padding-right:8px}
 .row{padding:14px 0;border-top:1px solid var(--line);align-items:start}
 .day{font-family:Marcellus,Georgia,serif;font-size:1.2rem;line-height:1.2}
 .day small{display:block;font-family:Figtree,sans-serif;color:var(--mist);font-size:.82rem;margin:2px 0 8px}
 .badge{display:inline-block;font-family:Figtree,sans-serif;font-size:.8rem;font-weight:700;padding:3px 9px;border-radius:999px}
-.badge.day{background:var(--go);color:var(--deep)}
-.badge.dusk{background:var(--brass);color:var(--deep)}
-.badge.night{background:transparent;color:var(--mist);border:1px solid var(--mist)}
-.badge.none{background:transparent;color:var(--stop);border:1px solid var(--stop)}
+.badge.v-day{background:var(--go);color:var(--deep)}
+.badge.v-dusk{background:var(--brass);color:var(--deep)}
+.badge.v-night{background:transparent;color:var(--mist);border:1px solid var(--mist)}
+.badge.v-none{background:transparent;color:var(--stop);border:1px solid var(--stop)}
 .track{display:flex;flex-direction:column;gap:3px}
 .sunlane{position:relative;height:10px;border-radius:3px;overflow:hidden;background:var(--dark)}
 .sunlane i{position:absolute;top:0;bottom:0;background:var(--sun)}
@@ -73,9 +82,9 @@ details.panel summary{cursor:pointer;color:var(--brass-soft);font-weight:600}
 .seg{position:absolute;top:0;bottom:0}
 .shade{position:absolute;top:0;bottom:0;background:repeating-linear-gradient(135deg,rgba(3,7,13,.7) 0 5px,rgba(3,7,13,.25) 5px 10px)}
 .bar svg{position:absolute;inset:0;width:100%;height:100%}
-.hwlab{position:absolute;top:4px;transform:translateX(-50%);font-size:.74rem;font-weight:600;background:var(--deep);color:var(--brass-soft);padding:1px 6px;border-radius:4px;white-space:nowrap;border:1px solid var(--line)}
+.hwlab{position:absolute;top:4px;transform:translateX(-50%);z-index:1;font-size:.74rem;font-weight:600;background:var(--deep);color:var(--brass-soft);padding:1px 6px;border-radius:4px;white-space:nowrap;border:1px solid var(--line)}
 .now{position:absolute;top:0;bottom:0;width:2px;background:var(--stop)}
-.summary{grid-column:2;font-size:.9rem;color:var(--mist);margin-top:6px}
+.summary{grid-column:2;font-size:.9rem;color:var(--mist);margin-top:6px;position:sticky;left:184px;max-width:860px}
 .summary b{color:var(--white);font-weight:600}
 .empty{color:var(--mist);padding:20px 0}
 textarea{width:100%;height:90px;margin:8px 0}
@@ -85,16 +94,14 @@ footer{font-size:.78rem;color:var(--mist);margin-top:24px;border-top:1px solid v
   h1{font-size:2rem}
   header{align-items:flex-start}
   .next{text-align:left}
-  .inner{min-width:0}
-  .axis,.row{grid-template-columns:1fr;gap:8px}
-  .axis>div:first-child{display:none}
-  .day{display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px}
+  .row{grid-template-columns:1fr;gap:8px}
+  .day{display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px;width:calc(100vw - 24px)}
   .day small{margin:0}
   .badge{margin-left:auto}
-  .summary{grid-column:1;margin-top:2px}
+  .summary{grid-column:1;margin-top:2px;position:sticky;left:0;width:calc(100vw - 24px)}
   .bar{height:70px}
   .hwlab{font-size:.68rem;padding:1px 4px}
-  button{padding:11px 18px}
+  button,.btn{padding:11px 18px}
   input[type=number]{width:70px;padding:9px 8px}
   .controls .status{flex-basis:100%}
 }
@@ -113,10 +120,12 @@ footer{font-size:.78rem;color:var(--mist);margin-top:24px;border-top:1px solid v
 
   <div class="panel">
     <div class="controls">
-      <button id="fetch">Refresh tide times</button>
+      <a class="btn ghost" id="open" href="https://sccd.royalnavy.mod.uk/api/khm/tides/portsmouth/upcoming" target="_blank" rel="noopener">1. Open tide feed</a>
+      <button id="clip">2. Paste tide data</button>
       <label class="inline"><input type="checkbox" id="weekends"> Weekends only</label>
       <p class="status" id="status"></p>
     </div>
+    <p class="hint">Open the feed, select all and copy, then come back and tap Paste. Do this every couple of weeks.</p>
   </div>
 
   <details class="panel">
@@ -141,11 +150,11 @@ footer{font-size:.78rem;color:var(--mist);margin-top:24px;border-top:1px solid v
     <span><i class="sw" style="background:repeating-linear-gradient(135deg,#03070D 0 3px,#3FB8C6 3px 6px)"></i>Dark (hatched)</span>
   </div>
 
-  <div class="chart"><div class="inner" id="chart"></div></div>
+  <div class="chart" id="scroller"><div class="inner" id="chart"></div></div>
 
   <details class="panel" style="margin-top:18px" id="manual">
-    <summary>Load data manually</summary>
-    <p>If refresh is blocked, <a href="https://sccd.royalnavy.mod.uk/api/khm/tides/portsmouth/upcoming" target="_blank" rel="noopener">open the tide feed</a>, select all (Ctrl+A), copy, and paste it here.</p>
+    <summary>Paste by hand</summary>
+    <p>If the Paste button can't read your clipboard, paste the copied feed here instead.</p>
     <textarea id="paste" placeholder="Paste the tide feed here"></textarea>
     <button id="load">Load pasted data</button>
   </details>
@@ -243,20 +252,26 @@ function render(){
   const min=cfg.slip+cfg.need, go=min+cfg.margin;
   $('calc').innerHTML = `Enough water when Portsmouth height is above <b>${go.toFixed(1)} m</b>. Tight between <b>${min.toFixed(1)}</b> and <b>${go.toFixed(1)} m</b>. A trip needs at least <b>${cfg.trip} h</b> of water.`;
   const chart=$('chart');
-  if(!feed){ chart.innerHTML='<p class="empty">Select Refresh tide times to load the next month.</p>'; $('next').innerHTML=''; return; }
+  if(!feed){ chart.innerHTML='<p class="empty">Open the tide feed, copy it, then tap Paste tide data.</p>'; $('next').innerHTML=''; return; }
   const ev=eventsFrom(feed);
   const from=Math.max(0,Math.min(23,cfg.from)), to=Math.max(from+1,Math.min(24,cfg.to));
   const span=(to-from)*36e5, step=5*6e4;
   const pct = ms => Math.max(0,Math.min(100,ms/span*100));
-  const edge = x => x<8 ? 'transform:translateX(0)' : x>92 ? 'transform:translateX(-100%)' : '';
+  const edge = x => x<2 ? 'transform:translateX(0)' : x>98 ? 'transform:translateX(-100%)' : '';
 
-  let html='<div class="axis"><div></div><div class="ticks">';
-  const tickStep = matchMedia('(max-width:700px)').matches ? 3 : (to-from>12?2:1);
-  for(let h=from; h<=to; h+=tickStep) html+=`<span style="left:${pct((h-from)*36e5)}%;${edge(pct((h-from)*36e5))}">${String(h).padStart(2,'0')}:00</span>`;
-  html+='</div></div>';
-
+  const slots=(to-from)*2, SLOT=46;
+  const mobile=matchMedia('(max-width:700px)').matches;
+  $('chart').style.minWidth = (slots*SLOT + (mobile?0:184))+'px';
+  let ticks='<div class="ticks">';
+  for(let i=0;i<=slots;i++){
+    const h=from+Math.floor(i/2), half=i%2===1, x=pct(i*18e5);
+    ticks+=`<span class="${half?'half':''}" style="left:${x}%;${edge(x)}">${String(h%24).padStart(2,'0')}:${half?'30':'00'}</span>`;
+  }
+  ticks+='</div>';
+  const grid=`<div class="grid" style="--hour:${100/(to-from)}%;--half:${100/slots}%"></div>`;
+  let html='';
   const p0=parts(Date.now()), today=local(+p0.year,+p0.month,+p0.day);
-  let rows=0, next=null;
+  let rows=0, next=null, firstRise=null;
   feed.forEach(day=>{
     const [y,m,d]=ymd(day.date), mid=local(y,m,d);
     if(mid<today) return;
@@ -267,6 +282,7 @@ function render(){
     if(cfg.weekends && !weekend) return;
     rows++;
     const start=local(y,m,d,from), end=start+span;
+    if(firstRise==null) firstRise=pct(rise-start);
 
     let segs='', pts=[], cur=null, segStart=start;
     for(let t=start; t<=end; t+=step){
@@ -297,43 +313,38 @@ function render(){
     const hwTxt = hws.map(e=>`HW ${hm(e.t)} (${e.h.toFixed(1)} m)`).join(', ');
     const label = springLabel(day.springPercentage);
     html+=`<div class="row">
-      <div class="day">${dayLabel(mid+12*36e5)}<small>${dateLabel(mid+12*36e5)}${label?', '+label:''}</small><span class="badge ${v.kind}">${BADGE[v.kind]}</span></div>
-      <div class="track">${sun}<div class="bar">${segs}${shade}${svg}${labs}${nowM}</div></div>
+      <div class="day">${dayLabel(mid+12*36e5)}<small>${dateLabel(mid+12*36e5)}${label?', '+label:''}</small><span class="badge v-${v.kind}">${BADGE[v.kind]}</span></div>
+      <div class="track">${ticks}${sun}<div class="bar">${segs}${shade}${grid}${svg}${labs}${nowM}</div></div>
       <div class="summary">${verdictText(v,set)} ${hwTxt}. Sunrise ${hm(rise)}, sunset ${hm(set)}.</div>
     </div>`;
   });
-  chart.innerHTML = rows ? html : '<p class="empty">No days to show. Untick Weekends only or refresh.</p>';
+  if(!window._scrolled && firstRise!=null){ window._scrolled=true; requestAnimationFrame(()=>{ $('scroller').scrollLeft=Math.max(0, firstRise/100*slots*SLOT - SLOT); }); }
+  chart.innerHTML = rows ? html : '<p class="empty">No days to show. Untick Weekends only or update the tide data.</p>';
   $('next').innerHTML = next
     ? `<small>Next weekend daylight trip</small><strong>${shortDay(next.mid+12*36e5)}</strong><span>${hm(next.v.s)} to ${hm(next.v.e)}</span>`
     : `<small>Next weekend daylight trip</small><strong>None in range</strong>`;
 }
 
 // data
-function setStatus(msg,err){ const s=$('status'); s.textContent=msg; s.className='status'+(err?' err':''); }
+function setStatus(msg,cls){ const s=$('status'); s.textContent=msg; s.className='status'+(cls?' '+cls:''); }
 function showLoaded(){
-  const f=load('hw_fetched',null), [y,m,d]=ymd(feed[feed.length-1].date);
-  setStatus(`Tide times to ${dateLabel(local(y,m,d,12))}.${f?` Refreshed ${dateLabel(f)} at ${hm(f)}.`:''}`);
+  const [y,m,d]=ymd(feed[feed.length-1].date), last=local(y,m,d,12);
+  const left=Math.floor((last-Date.now())/864e5);
+  if(left<0) setStatus('Tide data has run out. Update it using the steps above.','err');
+  else if(left<10) setStatus(`Tide times to ${dateLabel(last)}. Running low, update soon.`,'warn');
+  else setStatus(`Tide times to ${dateLabel(last)}.`);
 }
 function use(data){
-  if(!valid(data)) throw new Error('That does not look like the KHM tide feed.');
-  feed=data; save('hw_feed',feed); save('hw_fetched',Date.now()); showLoaded(); render();
+  if(!valid(data)) throw new Error('That does not look like the tide feed. Copy the whole page and try again.');
+  feed=data; save('hw_feed',feed); showLoaded(); render();
 }
-async function refresh(){
-  setStatus('Getting tide times…');
-  // 1. copy saved next to the page by the nightly GitHub job
+async function pasteClipboard(){
   try{
-    const r=await fetch('tides.json?'+Date.now(),{cache:'no-store'});
-    if(r.ok){ use(await r.json()); return; }
-  }catch(e){}
-  // 2. straight from the Navy feed
-  try{
-    const r=await fetch(FEED,{cache:'no-store'});
-    if(!r.ok) throw new Error(`The tide feed returned error ${r.status}. It may have moved.`);
-    use(await r.json());
+    const text=await navigator.clipboard.readText();
+    use(JSON.parse(text));
   }catch(e){
-    if(feed){ const f=load('hw_fetched',null); setStatus(`Could not refresh, showing saved data${f?` from ${dateLabel(f)}`:''}.`); }
-    else if(e instanceof TypeError){ setStatus('Could not get tide times. Use Load data manually below.',true); $('manual').open=true; }
-    else setStatus(e.message,true);
+    if(e instanceof SyntaxError || e.message.startsWith('That')) setStatus('That does not look like the tide feed. Copy the whole page and try again.','err');
+    else { setStatus('Could not read the clipboard. Paste by hand below.','err'); $('manual').open=true; $('paste').focus(); }
   }
 }
 
@@ -342,16 +353,15 @@ function syncInputs(){ KEYS.forEach(k=>$(k).value=cfg[k]); $('weekends').checked
 KEYS.forEach(k=>$(k).addEventListener('input',()=>{ const v=parseFloat($(k).value); if(!isNaN(v)){ cfg[k]=v; save('hw_cfg',cfg); render(); }}));
 $('weekends').addEventListener('change',()=>{ cfg.weekends=$('weekends').checked; save('hw_cfg',cfg); render(); });
 $('reset').addEventListener('click',()=>{ cfg={...DEFAULTS}; save('hw_cfg',cfg); syncInputs(); render(); });
-$('fetch').addEventListener('click',refresh);
+$('clip').addEventListener('click',pasteClipboard);
 $('load').addEventListener('click',()=>{
   try{ use(JSON.parse($('paste').value)); $('paste').value=''; $('manual').open=false; }
-  catch(e){ setStatus(e.message.startsWith('That') ? e.message : 'Could not read that. Copy the whole feed page and paste again.',true); }
+  catch(e){ setStatus('That does not look like the tide feed. Copy the whole page and try again.','err'); }
 });
 
 addEventListener('resize',()=>{ clearTimeout(window._rt); window._rt=setTimeout(render,150); });
 syncInputs(); render();
-if(feed) showLoaded();
-refresh();
+if(feed) showLoaded(); else setStatus('No tide data yet. Follow steps 1 and 2.');
 </script>
 </body>
 </html>
