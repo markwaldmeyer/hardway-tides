@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Solent passage</title>
+<meta name="theme-color" content="#F6F4EE">
+<script>
+(function(){ var t; try{ t=localStorage.getItem('hw_theme'); }catch(e){}
+  if(t!=='light' && t!=='dark') t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  document.documentElement.setAttribute('data-theme', t); })();
+</script>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Passage">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" type="image/png" href="icon-180.png">
+<link rel="manifest" href="passage-manifest.json">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Marcellus&family=Figtree:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F6F4EE; --deep:#EDF0F2; --card:#FFFFFF; --line:#D8DFE5;
+  --ink:#0E2236; --mist:#5F7386; --brass:#B08A3E; --brass-soft:#8C6A26;
+  --go:#2FA4B8; --go-soft:rgba(47,164,184,.16); --warn:#E08A3A; --warn-soft:rgba(224,138,58,.18);
+  --no:#C0503F; --no-soft:rgba(192,80,63,.14); --sun:#F2CD63; --night:#2C3E52; --stream:rgba(47,164,184,.28);
+  --onfill:#FFFFFF; --unk:#8A9AA9;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+:root[data-theme="dark"]{
+  --bg:#0A1B2E; --deep:#06111F; --card:#12283F; --line:#22405E;
+  --ink:#F4F1EA; --mist:#9FB3C6; --brass:#C9A45C; --brass-soft:#E3C88D;
+  --go:#3FB8C6; --go-soft:rgba(63,184,198,.18); --warn:#E3954A; --warn-soft:rgba(227,149,74,.2);
+  --no:#D46A5A; --no-soft:rgba(212,106,90,.2); --sun:#E9CF8E; --night:#03070D; --stream:rgba(63,184,198,.3);
+  --onfill:#06111F; --unk:#6F8496;
+}
+*,*::before,*::after{box-sizing:inherit}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.5 Figtree,"Segoe UI",Arial,sans-serif}
+.wrap{max-width:820px;margin:0 auto;padding:24px 14px 48px}
+header{border-bottom:1px solid var(--brass);padding-bottom:14px;margin-bottom:18px;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:12px}
+h1{font-family:Marcellus,Georgia,serif;font-weight:400;font-size:2.3rem;line-height:1;margin:0;letter-spacing:.03em}
+.sub{color:var(--mist);margin:6px 0 0;font-size:.95rem}
+button,.btn{font:inherit;font-weight:600;border-radius:6px;padding:10px 16px;cursor:pointer;text-decoration:none;display:inline-block}
+button{background:var(--brass);color:var(--onfill);border:0}
+.ghost{background:transparent;color:var(--brass-soft);border:1px solid var(--line)}
+:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
+a{color:var(--brass-soft)}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:12px}
+.controls{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center}
+.status{margin:8px 0 0;font-size:.88rem;color:var(--mist)}
+.status.err{color:var(--no)} .status.warn{color:var(--warn)}
+label{display:flex;flex-direction:column;font-size:.78rem;color:var(--mist);gap:3px}
+label.inline{flex-direction:row;align-items:center;gap:8px;color:var(--ink);font-size:.95rem}
+input[type=number],textarea{font:inherit;color:var(--ink);background:var(--deep);border:1px solid var(--line);border-radius:6px;padding:8px}
+input[type=number]{width:76px}
+input[type=checkbox]{accent-color:var(--brass);width:17px;height:17px}
+details summary{cursor:pointer;color:var(--brass-soft);font-weight:600}
+textarea{width:100%;height:80px;margin:8px 0}
+.calc{font-size:.88rem;color:var(--mist);margin:10px 0 0}
+.calc b{color:var(--ink)}
+
+.best{display:flex;flex-wrap:wrap;gap:8px;margin:4px 0 18px}
+.best h2{flex-basis:100%;margin:0 0 2px;font:600 .8rem Figtree,sans-serif;color:var(--brass);letter-spacing:.04em;text-transform:uppercase}
+.chip{font-size:.9rem;font-weight:600;padding:6px 12px;border-radius:999px;text-decoration:none;border:1px solid transparent}
+.chip.go{background:var(--go);color:var(--onfill)}
+.chip.warn{background:var(--warn-soft);color:var(--ink);border-color:var(--warn)}
+.chip.none{color:var(--mist);font-weight:400;padding-left:0}
+
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.8rem;color:var(--mist);margin:0 0 10px}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.sw{width:16px;height:10px;border-radius:2px;display:inline-block}
+
+.day{background:var(--card);border:1px solid var(--line);border-left:5px solid var(--unk);border-radius:10px;padding:12px 14px;margin-bottom:10px;scroll-margin-top:12px}
+.day.l0{border-left-color:var(--go)} .day.l1{border-left-color:var(--warn)} .day.l2{border-left-color:var(--no)}
+.day.off{opacity:.55;padding:8px 14px}
+.dh{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.dh h3{margin:0;font:400 1.2rem Marcellus,Georgia,serif}
+.dh small{color:var(--mist);font-size:.82rem}
+.badge{margin-left:auto;font-size:.8rem;font-weight:700;padding:3px 10px;border-radius:999px;white-space:nowrap}
+.b0{background:var(--go);color:var(--onfill)} .b1{background:var(--warn);color:var(--onfill)} .b2{background:var(--no);color:var(--onfill)}
+.bt{background:transparent;color:var(--mist);border:1px solid var(--unk)} .bx{background:transparent;color:var(--mist)}
+.facts{margin:6px 0 8px;font-size:.92rem}
+.facts b{font-weight:600}
+.facts .why{color:var(--mist);font-size:.85rem;display:block;margin-top:2px}
+
+.tl{position:relative;margin-top:4px}
+.tk{position:relative;height:15px;font-size:.66rem;color:var(--mist);font-variant-numeric:tabular-nums}
+.tk span{position:absolute;transform:translateX(-50%)}
+.lane{position:relative;height:9px;border-radius:3px;overflow:hidden;background:var(--deep);margin-top:2px}
+.lane i{position:absolute;top:0;bottom:0}
+.sunl{background:var(--night)} .sunl i{background:var(--sun)}
+.strm i{background:var(--stream)}
+.trip{height:16px} .trip i{background:var(--brass);border-radius:3px;top:2px;bottom:2px}
+.wind{height:22px}
+.wind i{display:flex;align-items:center;justify-content:center;font-style:normal;font-size:.66rem;font-weight:600;color:var(--ink);border-left:1px solid var(--card);font-variant-numeric:tabular-nums}
+.w0{background:var(--go-soft)} .w1{background:var(--warn-soft)} .w2{background:var(--no-soft)}
+.lw{position:absolute;top:0;bottom:0;width:2px;background:var(--ink);opacity:.5}
+.lwlab{position:absolute;top:-1px;transform:translateX(-50%);font-size:.62rem;color:var(--mist)}
+
+footer{font-size:.78rem;color:var(--mist);margin-top:22px;border-top:1px solid var(--line);padding-top:12px}
+footer ul{margin:6px 0;padding-left:18px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Solent passage</h1>
+      <p class="sub">Lymington to Gosport. Days with a fair tide in daylight, graded on the wind.</p>
+    </div>
+    <button class="ghost" id="theme" type="button"></button>
+  </header>
+
+  <div class="panel">
+    <div class="controls">
+      <a class="btn ghost" href="https://sccd.royalnavy.mod.uk/api/khm/tides/portsmouth/upcoming" target="_blank" rel="noopener">1. Open tide feed</a>
+      <button id="clip" type="button">2. Paste tide data</button>
+    </div>
+    <p class="status" id="status"></p>
+    <p class="status" id="windstatus"></p>
+    <div class="controls" style="margin-top:10px">
+      <label class="inline"><input type="checkbox" id="possible"> Possible days only</label>
+      <label class="inline"><input type="checkbox" id="weekends"> Weekends only</label>
+    </div>
+  </div>
+
+  <details class="panel" id="manual">
+    <summary>Paste by hand</summary>
+    <p style="font-size:.9rem">If the Paste button can't read your clipboard, paste the copied feed here.</p>
+    <textarea id="paste" placeholder="Paste the tide feed here"></textarea>
+    <button id="load" type="button">Load pasted data</button>
+  </details>
+
+  <details class="panel">
+    <summary>Settings</summary>
+    <div class="controls" style="margin-top:10px;align-items:flex-end">
+      <label>Distance (nm)<input type="number" id="dist" step="1"></label>
+      <label>Boat speed (kn)<input type="number" id="speed" step="0.5"></label>
+      <label>Tide help (kn)<input type="number" id="boost" step="0.5"></label>
+      <label>Leave from LW (h)<input type="number" id="leaveFrom" step="0.5"></label>
+      <label>Leave by LW (h)<input type="number" id="leaveTo" step="0.5"></label>
+      <label>Stream turns HW (h)<input type="number" id="turn" step="0.5"></label>
+      <label>Wind go (kn)<input type="number" id="meanGo" step="1"></label>
+      <label>Wind max (kn)<input type="number" id="meanMax" step="1"></label>
+      <label>Gust go (kn)<input type="number" id="gustGo" step="1"></label>
+      <label>Gust max (kn)<input type="number" id="gustMax" step="1"></label>
+      <label>Daylight buffer (min)<input type="number" id="buffer" step="15"></label>
+      <button class="ghost" id="reset" type="button">Reset</button>
+    </div>
+    <p class="calc" id="calc"></p>
+  </details>
+
+  <div class="best" id="best"></div>
+
+  <div class="legend">
+    <span><i class="sw" style="background:var(--sun)"></i>Daylight</span>
+    <span><i class="sw" style="background:var(--stream)"></i>Fair stream</span>
+    <span><i class="sw" style="background:var(--brass)"></i>Best passage</span>
+    <span><i class="sw" style="background:var(--go-soft);border:1px solid var(--go)"></i>Wind fine</span>
+    <span><i class="sw" style="background:var(--warn-soft);border:1px solid var(--warn)"></i>Marginal</span>
+    <span><i class="sw" style="background:var(--no-soft);border:1px solid var(--no)"></i>Too much / headwind</span>
+  </div>
+
+  <div id="days"></div>
+
+  <footer>
+    <ul>
+      <li>Fair stream is a rule of thumb: east-going from about LW Portsmouth −2 h to HW Portsmouth −1 h. Check a tidal stream atlas before you commit.</li>
+      <li>Wind cells show mean wind in knots, coloured by mean, gusts and direction. Easterlies count against you (headwind and wind over tide).</li>
+      <li>Portsmouth Harbour entrance: boats under 20 m use the Small Boat Channel with the engine running. Check the Harbour Master's current rules.</li>
+    </ul>
+    Tide data from KHM Portsmouth, produced by permission of the UK Hydrographic Office. © Crown copyright. Wind forecast from <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a> (CC BY 4.0) for the central Solent, about 16 days ahead and reliable for about 5. Always check the latest forecast and conditions before sailing.
+  </footer>
+</div>
+
+<script>
+const TZ='Europe/London';
+const WIND_URL='https://api.open-meteo.com/v1/forecast?latitude=50.77&longitude=-1.33&hourly=wind_speed_10m,wind_gusts_10m,wind_direction_10m,precipitation_probability&wind_speed_unit=kn&timeformat=unixtime&forecast_days=16';
+const DEFAULTS={dist:18,speed:5,boost:1,leaveFrom:-2,leaveTo:1,turn:-1,meanGo:15,meanMax:18,gustGo:20,gustMax:25,buffer:30,possible:true,weekends:false};
+const KEYS=['dist','speed','boost','leaveFrom','leaveTo','turn','meanGo','meanMax','gustGo','gustMax','buffer'];
+const $=id=>document.getElementById(id);
+function load(k,d){ try{ const v=localStorage.getItem(k); return v?JSON.parse(v):d; }catch(e){ return d; } }
+function save(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){} }
+let cfg={...DEFAULTS,...load('ps_cfg',{})};
+let feed=load('hw_feed',null);      // shared with the tides page
+let wind=load('ps_wind',null);
+
+// time helpers (Europe/London)
+const partsFmt=new Intl.DateTimeFormat('en-GB',{timeZone:TZ,hourCycle:'h23',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',weekday:'short'});
+function parts(ms){ const o={}; partsFmt.formatToParts(new Date(ms)).forEach(p=>o[p.type]=p.value); return o; }
+function tzOffset(ms){ const p=parts(ms); return Date.UTC(+p.year,+p.month-1,+p.day,+p.hour,+p.minute,+p.second)-Math.floor(ms/1000)*1000; }
+function local(y,m,d,hh=0,mm=0){ const g=Date.UTC(y,m-1,d,hh,mm); return g-tzOffset(g); }
+const hm=ms=>new Intl.DateTimeFormat('en-GB',{timeZone:TZ,hour:'2-digit',minute:'2-digit'}).format(new Date(ms));
+const dayName=ms=>new Intl.DateTimeFormat('en-GB',{timeZone:TZ,weekday:'long'}).format(new Date(ms));
+const shortDay=ms=>new Intl.DateTimeFormat('en-GB',{timeZone:TZ,weekday:'short',day:'numeric',month:'short'}).format(new Date(ms));
+const dateLabel=ms=>new Intl.DateTimeFormat('en-GB',{timeZone:TZ,day:'numeric',month:'short'}).format(new Date(ms));
+const H=36e5;
+
+// tide feed
+const ymd=s=>s.slice(0,10).split('-').map(Number);
+function at(dateStr,time){ if(!time) return null; const [y,m,d]=ymd(dateStr); const [hh,mm]=time.split(':').map(Number); return local(y,m,d,hh,mm); }
+function eventsFrom(days){
+  const ev=[];
+  days.forEach(d=>[['hWtime1','hWheight1',true],['hWtime2','hWheight2',true],['lWtime1','lWheight1',false],['lWtime2','lWheight2',false]]
+    .forEach(([tk,hk,hw])=>{ const t=at(d.date,d[tk]); if(t!=null && d[hk]!=null) ev.push({t,h:+d[hk],hw}); }));
+  return ev.sort((a,b)=>a.t-b.t);
+}
+const valid=d=>Array.isArray(d)&&d.length&&d[0].date&&('hWtime1' in d[0]);
+
+// wind
+const COMPASS=['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW','SW','WSW','W','WNW','NW','NNW'];
+const compass=d=>COMPASS[Math.round(d/22.5)%16];
+function windHour(t){ if(!wind) return null; const i=wind.t.indexOf(Math.floor(t/H)*3600); return i<0||wind.s[i]==null?null:{s:wind.s[i],g:wind.g[i],d:wind.d[i],r:wind.r?.[i]}; }
+// 0 fine, 1 marginal, 2 no
+function dirLevel(d,s){
+  const east=d>=60&&d<=120, quarter=(d>30&&d<60)||(d>120&&d<150);
+  if(east) return s>12?2:s>6?1:0;
+  if(quarter) return s>10?1:0;
+  return 0;
+}
+function hourLevel(w){
+  const sL=w.s<=cfg.meanGo?0:w.s<=cfg.meanMax?1:2;
+  const gL=w.g<=cfg.gustGo?0:w.g<=cfg.gustMax?1:2;
+  return Math.max(sL,gL,dirLevel(w.d,w.s));
+}
+function windOver(a,b){
+  const hrs=[];
+  for(let t=Math.floor(a/H)*H; t<=b; t+=H){ const w=windHour(t); if(!w) return null; hrs.push(w); }
+  if(!hrs.length) return null;
+  let s=0,g=0,r=0,x=0,y=0,lvl=0;
+  hrs.forEach(w=>{ s=Math.max(s,w.s); g=Math.max(g,w.g); r=Math.max(r,w.r??0); x+=Math.sin(w.d*Math.PI/180)*w.s; y+=Math.cos(w.d*Math.PI/180)*w.s; lvl=Math.max(lvl,hourLevel(w)); });
+  const d=(Math.atan2(x,y)*180/Math.PI+360)%360;
+  return {s,g,r,d,lvl};
+}
+
+// the passage logic
+function planDay(day, ev){
+  const [y,m,d]=ymd(day.date), mid=local(y,m,d);
+  const rise=at(day.date,day.sunrise)??mid+7.5*H, set=at(day.date,day.sunset)??mid+16*H;
+  const dur=cfg.dist/Math.max(1,cfg.speed+cfg.boost)*H;
+  const lws=ev.filter(e=>!e.hw && e.t>=mid-3*H && e.t<mid+27*H);
+  let best=null; const streams=[];
+  lws.forEach(L=>{
+    const Hn=ev.find(e=>e.hw && e.t>L.t); if(!Hn) return;
+    const sStart=L.t+cfg.leaveFrom*H, sEnd=Hn.t+cfg.turn*H;
+    streams.push([sStart,sEnd,L]);
+    const buf=(cfg.buffer||0)*6e4;
+    const from=Math.max(sStart,rise+buf), to=Math.min(L.t+cfg.leaveTo*H, set-buf-dur, sEnd-dur);
+    if(to<from) return;
+    const first=Math.ceil(from/9e5)*9e5;
+    for(let dep=first; dep<=to; dep+=9e5){
+      if(dep<mid || dep>=mid+24*H) continue;
+      const w=windOver(dep,dep+dur);
+      const lvl=w?w.lvl:null;
+      const cand={dep,arr:dep+dur,L,Hn,w,lvl,from,to};
+      const rank=c=>(c.lvl==null?0.5:c.lvl)*1000+(c.w?c.w.g:0);
+      if(!best || rank(cand)<rank(best)) best=cand;
+    }
+  });
+  return {mid,rise,set,dur,best,streams};
+}
+
+const VERDICT=['Go','Marginal','No go'];
+function render(){
+  const dur=cfg.dist/Math.max(1,cfg.speed+cfg.boost);
+  $('calc').innerHTML=`Passage about <b>${Math.floor(dur)} h ${Math.round((dur%1)*60)} min</b>. Leave between LW ${fmtH(cfg.leaveFrom)} and LW ${fmtH(cfg.leaveTo)}, arrive before HW ${fmtH(cfg.turn)}, all in daylight with ${cfg.buffer} min to spare at each end. Go if mean ≤ <b>${cfg.meanGo} kn</b> and gusts ≤ <b>${cfg.gustGo} kn</b>; no go above ${cfg.meanMax} / ${cfg.gustMax} kn.`;
+  if(!feed){ $('days').innerHTML='<p class="status">Open the tide feed, copy it, then tap Paste tide data.</p>'; $('best').innerHTML=''; return; }
+  const ev=eventsFrom(feed);
+  const p0=parts(Date.now()), today=local(+p0.year,+p0.month,+p0.day);
+  let html='', chips=[];
+  feed.forEach(day=>{
+    const [y,m,d]=ymd(day.date), mid=local(y,m,d);
+    if(mid<today) return;
+    const wd=parts(mid+12*H).weekday, weekend=wd==='Sat'||wd==='Sun';
+    if(cfg.weekends && !weekend) return;
+    const P=planDay(day,ev), b=P.best;
+    const id='d'+day.date.slice(0,10);
+    if(!b){
+      if(cfg.possible) return;
+      html+=`<div class="day off" id="${id}"><div class="dh"><h3>${dayName(mid+12*H)}</h3><small>${dateLabel(mid+12*H)}</small><span class="badge bx">No fair tide in daylight</span></div></div>`;
+      return;
+    }
+    const lvl=b.lvl;
+    const badge= lvl==null ? '<span class="badge bt">Tide fits, no forecast yet</span>' : `<span class="badge b${lvl}">${VERDICT[lvl]}</span>`;
+    if(lvl===0) chips.push(`<a class="chip go" href="#${id}">${shortDay(mid+12*H)}</a>`);
+    if(lvl===1) chips.push(`<a class="chip warn" href="#${id}">${shortDay(mid+12*H)}</a>`);
+    const leaveRange = b.to-b.from>=9e5 ? `${hm(Math.ceil(b.from/9e5)*9e5)} to ${hm(Math.floor(b.to/9e5)*9e5)}` : hm(b.dep);
+    let windTxt='<span class="why">Wind forecast not available this far ahead. Tide and daylight work.</span>';
+    if(b.w){
+      const why=[];
+      if(b.w.s>cfg.meanGo) why.push(`mean ${Math.round(b.w.s)} kn`);
+      if(b.w.g>cfg.gustGo) why.push(`gusts ${Math.round(b.w.g)} kn`);
+      if(dirLevel(b.w.d,b.w.s)) why.push(`${compass(b.w.d)} wind is against you`);
+      windTxt=`<br>Wind <b>${compass(b.w.d)} ${Math.round(b.w.s)} kn</b>, gusts <b>${Math.round(b.w.g)} kn</b>, rain chance up to ${b.w.r}%.`+(why.length?`<span class="why">Held back by: ${why.join(', ')}.</span>`:'');
+    }
+    html+=`<div class="day l${lvl??'u'}" id="${id}">
+      <div class="dh"><h3>${dayName(mid+12*H)}</h3><small>${dateLabel(mid+12*H)}</small>${badge}</div>
+      <div class="facts">Best: leave <b>${hm(b.dep)}</b>, arrive about <b>${hm(b.arr)}</b>. Window to leave ${leaveRange}. LW Portsmouth ${hm(b.L.t)} (${b.L.h.toFixed(1)} m).${windTxt}</div>
+      ${timeline(P)}
+    </div>`;
+  });
+  $('days').innerHTML=html||'<p class="status">No days to show. Untick the filters or update the tide data.</p>';
+  $('best').innerHTML=`<h2>Best upcoming days</h2>`+(chips.length?chips.join(''):'<span class="chip none">None yet within the wind forecast. Days marked "Tide fits" are worth watching.</span>');
+}
+const fmtH=h=>(h>=0?'+':'−')+Math.abs(h)+' h';
+
+function timeline(P){
+  const s0=Math.floor((P.rise-1.5*H)/H)*H, s1=Math.ceil((P.set+1.5*H)/H)*H, span=s1-s0;
+  const pct=t=>Math.max(0,Math.min(100,(t-s0)/span*100));
+  const seg=(a,b,extra='')=>`<i style="left:${pct(a)}%;width:${pct(b)-pct(a)}%;${extra}"></i>`;
+  let tk='';
+  for(let t=s0;t<=s1;t+=2*H){ const x=pct(t); tk+=`<span style="left:${x}%;${x<3?'transform:none':x>97?'transform:translateX(-100%)':''}">${hm(t).slice(0,2)}</span>`; }
+  let wl='';
+  for(let t=s0;t<s1;t+=H){ const w=windHour(t); if(!w) continue; wl+=`<i class="w${hourLevel(w)}" style="left:${pct(t)}%;width:${pct(t+H)-pct(t)}%" title="${compass(w.d)} ${Math.round(w.s)} kn, gusts ${Math.round(w.g)}">${Math.round(w.s)}</i>`; }
+  const streams=P.streams.map(([a,b])=>seg(a,b)).join('');
+  const lws=P.streams.filter(([,,L])=>L.t>=s0&&L.t<=s1).map(([,,L])=>`<div class="lw" style="left:${pct(L.t)}%"></div>`).join('');
+  const b=P.best;
+  return `<div class="tl">
+    <div class="tk">${tk}</div>
+    <div class="lane sunl">${seg(P.rise,P.set)}</div>
+    <div class="lane strm">${streams}${lws}</div>
+    <div class="lane trip">${b?seg(b.dep,b.arr):''}</div>
+    <div class="lane wind">${wl}</div>
+  </div>`;
+}
+
+// tide paste
+function setStatus(msg,cls){ const s=$('status'); s.textContent=msg; s.className='status'+(cls?' '+cls:''); }
+function showLoaded(){
+  const [y,m,d]=ymd(feed[feed.length-1].date), last=local(y,m,d,12), left=Math.floor((last-Date.now())/864e5);
+  if(left<0) setStatus('Tide data has run out. Update it using the buttons above.','err');
+  else if(left<10) setStatus(`Tide times to ${dateLabel(last)}. Running low, update soon.`,'warn');
+  else setStatus(`Tide times to ${dateLabel(last)}.`);
+}
+function use(data){
+  if(!valid(data)) throw new Error('bad');
+  feed=data; save('hw_feed',feed); showLoaded(); render();
+}
+$('clip').addEventListener('click',async()=>{
+  try{ use(JSON.parse(await navigator.clipboard.readText())); }
+  catch(e){
+    if(e instanceof SyntaxError||e.message==='bad') setStatus('That does not look like the tide feed. Copy the whole page and try again.','err');
+    else { setStatus('Could not read the clipboard. Paste by hand below.','err'); $('manual').open=true; $('paste').focus(); }
+  }
+});
+$('load').addEventListener('click',()=>{
+  try{ use(JSON.parse($('paste').value)); $('paste').value=''; $('manual').open=false; }
+  catch(e){ setStatus('That does not look like the tide feed. Copy the whole page and try again.','err'); }
+});
+
+// wind fetch
+function showWind(extra=''){
+  const el=$('windstatus');
+  if(!wind){ el.textContent='Wind forecast not loaded yet.'+extra; return; }
+  el.textContent=`Wind forecast to ${dateLabel(wind.t[wind.t.length-1]*1000)}, updated ${dateLabel(wind.fetched)} at ${hm(wind.fetched)}.`+extra;
+}
+async function fetchWind(){
+  if(wind && Date.now()-wind.fetched<60*6e4){ showWind(); return; }
+  try{
+    const r=await fetch(WIND_URL,{cache:'no-store'}); if(!r.ok) throw new Error();
+    const j=await r.json();
+    wind={t:j.hourly.time,s:j.hourly.wind_speed_10m,g:j.hourly.wind_gusts_10m,d:j.hourly.wind_direction_10m,r:j.hourly.precipitation_probability,fetched:Date.now()};
+    save('ps_wind',wind); showWind(); render();
+  }catch(e){ showWind(' Could not reach Open-Meteo just now.'); }
+}
+
+// theme
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme',t);
+  document.querySelector('meta[name=theme-color]').setAttribute('content',t==='dark'?'#0A1B2E':'#F6F4EE');
+  $('theme').textContent=t==='dark'?'☀ Light':'☾ Dark';
+}
+$('theme').addEventListener('click',()=>{ const t=document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark'; try{ localStorage.setItem('hw_theme',t); }catch(e){} applyTheme(t); });
+applyTheme(document.documentElement.getAttribute('data-theme'));
+
+// settings
+function sync(){ KEYS.forEach(k=>$(k).value=cfg[k]); $('possible').checked=cfg.possible; $('weekends').checked=cfg.weekends; }
+KEYS.forEach(k=>$(k).addEventListener('input',()=>{ const v=parseFloat($(k).value); if(!isNaN(v)){ cfg[k]=v; save('ps_cfg',cfg); render(); } }));
+['possible','weekends'].forEach(k=>$(k).addEventListener('change',()=>{ cfg[k]=$(k).checked; save('ps_cfg',cfg); render(); }));
+$('reset').addEventListener('click',()=>{ cfg={...DEFAULTS}; save('ps_cfg',cfg); sync(); render(); });
+
+sync(); render();
+if(feed) showLoaded(); else setStatus('No tide data yet. Follow steps 1 and 2. If you have already loaded it in the tides app, it appears here automatically.');
+showWind(); fetchWind();
+document.addEventListener('visibilitychange',()=>{ if(!document.hidden) fetchWind(); });
+</script>
+</body>
+</html>
